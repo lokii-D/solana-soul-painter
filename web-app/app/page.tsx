@@ -31,16 +31,18 @@ export default function SoulPainterPage() {
   }, [])
 
   const handleSubmit = async () => {
+    // 💡 细节优化：清理用户粘贴时可能带入的前后空格
+    const cleanAddress = address.trim();
+
     // 1️⃣ 第一重过滤：基础长度
-    if (address.length < 32) {
+    if (cleanAddress.length < 32) {
       setError("INVALID LENGTH. ENTER A VALID SOLANA ADDRESS.")
       return
     }
 
     // 2️⃣ 第二重过滤：真正的 Solana 地址格式校验
     try {
-      // 如果输入的字符串不是合法的 Base58 地址，这一步会直接报错
-      new PublicKey(address);
+      new PublicKey(cleanAddress);
     } catch (e) {
       setError("INVALID SOLANA ADDRESS. STOP TROLLING THE ORACLE.");
       return
@@ -60,7 +62,8 @@ export default function SoulPainterPage() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address, token })
+        // 💡 确保发送给后端的是清理过空格的干净地址
+        body: JSON.stringify({ address: cleanAddress, token })
       });
 
       const result = await response.json();
@@ -161,6 +164,7 @@ function InitialState({ address, setAddress, onSubmit, onKeyDown, error, token, 
         <input
           id="sol-address" type="text" value={address} onChange={(e) => setAddress(e.target.value)} onKeyDown={onKeyDown}
           placeholder="PASTE ADDRESS HERE..."
+          maxLength={44} // 💡 终极物理防御：Solana 地址最长 44 位，彻底杜绝粘贴长篇代码
           className="neon-input w-full text-center py-[15px] text-[14px] font-mono bg-black/50 outline-none focus:ring-1 focus:ring-[#00FF41] uppercase tracking-[1px] border border-[#00FFFF]/50 text-[#00FF41] rounded-[4px] transition-all"
           spellCheck={false} autoComplete="off"
         />
