@@ -47,7 +47,7 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
   const handleTwitterShare = () => {
     // 1. 直接定义好带网址的完整文案
     // 注意：这里我们手动把 https 链接拼在手指 👇 后面
-    const siteUrl = "https://solana-soul-painter.vercel.app";
+    const siteUrl = "\n\nhttps://solana-soul-painter.vercel.app";
     
     const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nScan your wallet here 👇\n${siteUrl}`;
 
