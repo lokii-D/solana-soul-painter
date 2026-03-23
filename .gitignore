@@ -1,0 +1,20 @@
+# 1. 拦截所有环境变量文件（绝杀你根目录和子目录的所有 .env）
+*.env
+*.env.*
+.env
+.env.local
+
+# 2. 拦截明确的危险文件（双重保险）
+DeepSeek_API_KEY.env
+HELIUS_API_KEY.env
+
+# 3. 拦截 Node.js 和 Next.js 庞大的依赖和构建产物
+node_modules/
+web-app/node_modules/
+web-app/.next/
+web-app/out/
+web-app/build/
+
+# 4. 拦截 Mac 系统垃圾文件
+.DS_Store
+*.pem
