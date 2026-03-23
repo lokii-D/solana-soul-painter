@@ -19,11 +19,13 @@ export async function POST(req: Request) {
     const isVercel = origin.endsWith('.vercel.app'); // 允许 Vercel 自动生成的各种预览域名
     
     // 如果存在来源头，且【不是本地】、【不是Vercel域名】、【且不匹配环境变量】，直接击杀请求
+    // 把原来的返回改成这样，带上真实的 origin 变量：
     if (origin && !isLocal && !isVercel && origin !== allowedOrigin) {
       console.warn(`[SECURITY ALERT] UNAUTHORIZED ORIGIN BLOCKED: ${origin}`);
-      return NextResponse.json({ error: "ACCESS DENIED. UNREGISTERED TERMINAL." }, { status: 403 });
+      return NextResponse.json({ 
+        error: `CSO_DEBUG: 查到的 Origin 是 [${origin}]，Vercel 变量是 [${allowedOrigin}]` 
+      }, { status: 403 });
     }
-
     // ==========================================
     // 🛡️ DEFENSE TIER -0.5: IP RATE LIMITING (防脚本狂刷)
     // ==========================================
