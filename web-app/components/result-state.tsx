@@ -45,15 +45,16 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
   // 🚀 全新注入的裂变魔法函数 (链接紧随排版版)
   // ==========================================
   const handleTwitterShare = () => {
-    const siteUrl = "https://solana-soul-painter.vercel.app";
+    // 💡 核心修改：让分享出去的链接带上用户的钱包地址
+    const siteUrl = `https://solana-soul-painter.vercel.app/share/${address}`;
     
-    // 💡 修改点：把 👇 后面的 \n 换成了一个普通空格
+    // 文案保持不变，把专属链接拼在最后
     const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nScan your wallet here 👇 ${siteUrl}`;
 
     const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
     window.open(twitterIntentUrl, '_blank', 'noopener,noreferrer');
-  }; 
+  };
   return (
     <div className="w-full h-full flex justify-center items-center overflow-hidden bg-transparent">
       
