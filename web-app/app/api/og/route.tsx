@@ -21,25 +21,24 @@ export async function GET(request: Request) {
     // ==========================================
     // 💡 2. 动态背景判定逻辑 (全面扩充词库，捕获最新 AI 毒舌词汇)
     // ==========================================
+    // ==========================================
+    // 💡 2. 动态背景判定逻辑 (已为你扩充“超纲”词汇)
+    // ==========================================
     let bgName = 'default.jpg';
     
-    // 韭菜/套牢/归零 (SLERF, BOME 等接盘侠) -> 对应你熟悉的“红绿灯小巷”
     if (title.includes('EXIT') || title.includes('LIQUIDITY') || title.includes('REKT') || title.includes('BAGHOLDER') || title.includes('MARTYR') || title.includes('SLERF') || title.includes('BOME')) {
       bgName = 'rekt.jpg'; 
     } 
-    // 巨鲸/钻石手/老农 (高净值/质押者) -> 对应深海、豪宅或金色矩阵
-    else if (title.includes('WHALE') || title.includes('DIAMOND') || title.includes('GOD') || title.includes('BOOMER') || title.includes('YIELD')) {
+    else if (title.includes('WHALE') || title.includes('DIAMOND') || title.includes('GOD') || title.includes('BOOMER') || title.includes('YIELD') || title.includes('FARMER')) {
       bgName = 'whale.jpg'; 
     } 
-    // 赌狗/高频交易/DEX 狂魔 (Raydium, Pump.fun, 频繁 Swap) -> 对应疯狂赌场或红色故障代码
-    else if (title.includes('DEGEN') || title.includes('GAMBLER') || title.includes('PAPER') || title.includes('FOMO') || title.includes('RAYDIUM') || title.includes('SWAP') || title.includes('ZOMBIE') || title.includes('PUMP')) {
+    // 💡 在这里加上了 SPAMMER, BOT, SNIPER, MEV (高频刷子/机器人/垃圾制造者)
+    else if (title.includes('DEGEN') || title.includes('GAMBLER') || title.includes('PAPER') || title.includes('FOMO') || title.includes('RAYDIUM') || title.includes('SWAP') || title.includes('ZOMBIE') || title.includes('PUMP') || title.includes('SPAMMER') || title.includes('BOT') || title.includes('SNIPER') || title.includes('MEV')) {
       bgName = 'degen.jpg'; 
     }
-    // 幽灵/僵尸/灰尘收集器 (无交互/极少交互) -> 对应赛博废墟或数字墓地
-    else if (title.includes('GHOST') || title.includes('DUST') || title.includes('COLLECTOR') || title.includes('OBSERVER') || title.includes('DEAD')) {
+    else if (title.includes('GHOST') || title.includes('DUST') || title.includes('COLLECTOR') || title.includes('OBSERVER') || title.includes('DEAD') || title.includes('LURKER')) {
       bgName = 'ghost.jpg'; 
     }
-
     // ==========================================
     // 💡 3. 智能路径读取 (Base64 方案 + 强力容错降级)
     // ==========================================
