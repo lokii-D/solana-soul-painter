@@ -6,12 +6,20 @@ const redis = Redis.fromEnv();
 
 export async function POST(req: Request) {
   try {
+<<<<<<< HEAD
     // ==========================================
+=======
+   // ==========================================
+>>>>>>> 3fe8088bd4224286c39b53528f5fd635cda7c9a4
     // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验 (已修复)
     // ==========================================
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
     
+<<<<<<< HEAD
     // 读取 Vercel 环境变量里的正式域名（不再硬编码长预览域名）
+=======
+    // 读取 Vercel 环境变量里的正式域名
+>>>>>>> 3fe8088bd4224286c39b53528f5fd635cda7c9a4
     const allowedOrigin = process.env.ALLOWED_ORIGIN;
     
     // 增强版智能规则：
@@ -19,7 +27,10 @@ export async function POST(req: Request) {
     const isVercel = origin.endsWith('.vercel.app'); // 允许 Vercel 自动生成的各种预览域名
     
     // 如果存在来源头，且【不是本地】、【不是Vercel域名】、【且不匹配环境变量】，直接击杀请求
+<<<<<<< HEAD
     // 把原来的返回改成这样，带上真实的 origin 变量：
+=======
+>>>>>>> 3fe8088bd4224286c39b53528f5fd635cda7c9a4
     if (origin && !isLocal && !isVercel && origin !== allowedOrigin) {
       console.warn(`[SECURITY ALERT] UNAUTHORIZED ORIGIN BLOCKED: ${origin}`);
       return NextResponse.json({ 
