@@ -7,13 +7,19 @@ const redis = Redis.fromEnv();
 export async function POST(req: Request) {
   try {
     // ==========================================
-    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 域名白名单校验
+    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验 (已修复)
     // ==========================================
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
-    const allowedOrigin = process.env.ALLOWED_ORIGIN || 'http://localhost:3000';
     
-    // 如果存在来源头，且不是我们的白名单域名，直接击杀请求
-    if (origin && !origin.startsWith(allowedOrigin)) {
+    // 读取 Vercel 环境变量里的正式域名（不再硬编码长预览域名）
+    const allowedOrigin = process.env.ALLOWED_ORIGIN;
+    
+    // 增强版智能规则：
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); // 允许本地调试
+    const isVercel = origin.endsWith('.vercel.app'); // 允许 Vercel 自动生成的各种预览域名
+    
+    // 如果存在来源头，且【不是本地】、【不是Vercel域名】、【且不匹配环境变量】，直接击杀请求
+    if (origin && !isLocal && !isVercel && origin !== allowedOrigin) {
       console.warn(`[SECURITY ALERT] UNAUTHORIZED ORIGIN BLOCKED: ${origin}`);
       return NextResponse.json({ error: "ACCESS DENIED. UNREGISTERED TERMINAL." }, { status: 403 });
     }
