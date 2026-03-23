@@ -7,12 +7,12 @@ const redis = Redis.fromEnv();
 export async function POST(req: Request) {
   try {
     // ==========================================
-    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验 (已加固)
+    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验
     // ==========================================
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
     const allowedOrigin = process.env.ALLOWED_ORIGIN;
     
-    // 加固：精确匹配本地环境，防止黑客伪造包含 localhost 的假域名
+    // 精确匹配本地环境，防止黑客伪造包含 localhost 的假域名
     const isLocal = origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'); 
     const isVercel = origin.endsWith('.vercel.app'); 
     
@@ -24,9 +24,9 @@ export async function POST(req: Request) {
     }
 
     // ==========================================
-    // 🛡️ DEFENSE TIER -0.5: IP RATE LIMITING (已加固)
+    // 🛡️ DEFENSE TIER -0.5: IP RATE LIMITING (防脚本狂刷)
     // ==========================================
-    // 加固：防止黑客通过伪造 x-forwarded-for 绕过限流（取逗号分隔的第一个真实IP）
+    // 防止黑客通过伪造 x-forwarded-for 绕过限流（取逗号分隔的第一个真实IP）
     const forwardedFor = req.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown-cyber-entity';
     const rateLimitKey = `rate_limit_${ip}`;
@@ -35,23 +35,38 @@ export async function POST(req: Request) {
     if (requestCount === 1) {
       await redis.expire(rateLimitKey, 60); 
     }
-    if (requestCount > 3) {
+    if (requestCount > 5) { // 稍微放宽到一分钟 5 次，防止误伤分享页面的快速测试
       console.warn(`[SECURITY ALERT] RATE LIMIT EXCEEDED FOR IP: ${ip}`);
       return NextResponse.json({ 
         error: "SYSTEM COOLING DOWN. YOU ARE SCANNING TOO FAST. WAIT 60 SECONDS." 
       }, { status: 429 });
     }
 
-    const body = await req.json();
-    const { address, token } = body; 
+    // 尝试解析 Body
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: "INVALID JSON PAYLOAD" }, { status: 400 });
+    }
+
+    const { address: rawAddress, token } = body; 
     
     // ==========================================
-    // 🛡️ DEFENSE TIER -0.1: INPUT SANITATION (全新防注入加固)
+    // 🛡️ DEFENSE TIER -0.1: INPUT SANITATION (终极防代码注入)
     // ==========================================
-    // 加固：严格校验 Solana 地址格式 (Base58, 32-44字符)，防止恶意代码注入 API
+    if (!rawAddress || typeof rawAddress !== 'string') {
+      return NextResponse.json({ error: "MISSING OR INVALID ADDRESS" }, { status: 400 });
+    }
+
+    // 核心清洗：去除所有隐形字符、换行和前后空格
+    const address = rawAddress.trim();
+
+    // 严格校验 Solana 地址格式 (Base58, 32-44字符)
     const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-    if (!address || !solanaAddressRegex.test(address)) {
-      console.warn(`[SECURITY ALERT] MALFORMED ADDRESS INJECTION ATTEMPT: ${address}`);
+    if (!solanaAddressRegex.test(address)) {
+      // 截断日志，防止被传进来的十万字长代码撑爆 Vercel Logs
+      console.warn(`[SECURITY ALERT] MALFORMED ADDRESS INJECTION ATTEMPT: ${address.substring(0, 50)}...`);
       return NextResponse.json({ error: "INVALID SOLANA ADDRESS FORMAT" }, { status: 400 });
     }
 
@@ -124,7 +139,7 @@ export async function POST(req: Request) {
       recent_patterns: txDetails
     });
 
-    // 💡 100% 还原你的原版提示词
+    // 💡 100% 原汁原味保留的系统提示词
     const prompt = `You are a ruthless, highly analytical, and cynical Web3 cyber-oracle. Analyze the following Solana wallet data and roast the user without mercy.
 
 ON-CHAIN DATA:
