@@ -42,19 +42,19 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
   const mbtiTags = posterData?.data?.mbti_tags || ["IMPULSIVE", "RISK-SEEKING", "HOPIUM-ADDICT"]
 
   // ==========================================
-  // 🚀 全新注入的裂变魔法函数
+  // 🚀 全新注入的裂变魔法函数 (链接紧随排版版)
   // ==========================================
   const handleTwitterShare = () => {
-    // 1. 动态抓取当前页面的根域名（不论你是在 localhost 测试，还是在 vercel 正式环境，都不会错）
+    // 1. 动态抓取当前页面的根域名
     const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://solana-soul-painter.vercel.app";
 
-    // 2. 准备极致嘲讽的推特文案
-    const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nDare to scan your Solana wallet? 👇`;
+    // 2. 准备极致嘲讽的推特文案，直接将 siteUrl 拼接到最后一行
+    const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nScan your wallet here 👇\n${siteUrl}`;
 
-    // 3. 将 url 作为一个独立的参数传给推特，这样推特会自动抓取你网站的标题和图片作为卡片！
-    const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(siteUrl)}`;
+    // 3. 将整个文本段直接进行 URL 编码
+    const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
-    // 4. 新窗口打开
+    // 4. 新窗口打开推特
     window.open(twitterIntentUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -143,7 +143,6 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
             SCAN AGAIN
           </button>
           
-          {/* 💡 核心修改点：把之前的 <a> 标签换成了原生的 <button>，并绑定了 handleTwitterShare */}
           <button 
             onClick={handleTwitterShare} 
             className="w-[200px] py-[1.2vh] rounded-[4px] text-[13px] font-mono text-[#00FF41] font-bold uppercase border border-[#00FF41] bg-[rgba(0,0,0,0.7)] shadow-[0_0_8px_#00FF41] hover:bg-[#00FF41]/20 transition-all text-center block"
