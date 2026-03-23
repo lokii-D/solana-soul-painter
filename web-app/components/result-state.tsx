@@ -41,8 +41,22 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
   const titleTags = posterData?.data?.title_tags || ["HIGH-FREQUENCY", "GAS-BURNING", "MICRO-LOSS"]
   const mbtiTags = posterData?.data?.mbti_tags || ["IMPULSIVE", "RISK-SEEKING", "HOPIUM-ADDICT"]
 
-  const shareText = encodeURIComponent(`My On-Chain Soul Scan is complete.\n\nClass: ${title}\nAlignment: ${mbti}\n\nScan your wallet here 👇`)
-  const shareUrl = `https://twitter.com/intent/tweet?text=${shareText}`
+  // ==========================================
+  // 🚀 全新注入的裂变魔法函数
+  // ==========================================
+  const handleTwitterShare = () => {
+    // 1. 动态抓取当前页面的根域名（不论你是在 localhost 测试，还是在 vercel 正式环境，都不会错）
+    const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://solana-soul-painter.vercel.app";
+
+    // 2. 准备极致嘲讽的推特文案
+    const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nDare to scan your Solana wallet? 👇`;
+
+    // 3. 将 url 作为一个独立的参数传给推特，这样推特会自动抓取你网站的标题和图片作为卡片！
+    const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(siteUrl)}`;
+
+    // 4. 新窗口打开
+    window.open(twitterIntentUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-hidden bg-transparent">
@@ -59,19 +73,14 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
           </div>
         </div>
 
-        {/* =========================================
-            💡 核心重构：废除 justify-between，改为绝对锚定布局！
-            左边强制 25%，右边强制 25%，中间用 flex-1 填满并两边撑开 2% margin。
-            这在数学上保证了左右两端绝对 100% 贴合容器边缘！
-            ========================================= */}
         <div className="w-full mt-[4vh] flex-1 min-h-0 flex flex-row items-stretch shrink-0">
           
-          {/* 左卡片：强制不缩放，稳稳钉死在最左侧 0px 位置 */}
+          {/* 左卡片 */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-[25%] min-w-0 shrink-0 h-full">
             <SideCard subtitle="CLASS OVERVIEW" title={title} tags={titleTags} />
           </motion.div>
 
-          {/* 中间主卡片：用 flex-1 和 mx-[2%] 完美吸附占据中间的 46% */}
+          {/* 中间主卡片 */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
             className="flex-1 mx-[2%] min-w-0 h-full flex flex-col items-center justify-center border border-[#00FF41] bg-transparent shadow-[0_0_8px_#00FF41] rounded-[4px]"
@@ -96,14 +105,14 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
             </div>
           </motion.div>
 
-          {/* 右卡片：强制不缩放，稳稳钉死在最右侧 100% 位置 */}
+          {/* 右卡片 */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="w-[25%] min-w-0 shrink-0 h-full">
             <SideCard subtitle="ALIGNMENT TRAIT" title={mbti} tags={mbtiTags} />
           </motion.div>
 
         </div>
 
-        {/* 系统诊断栏：同样是 w-full，它现在必然和上方的左右卡片边界实现像素级对齐！ */}
+        {/* 系统诊断栏 */}
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           className="w-full mt-[2vh] flex flex-col items-center shrink-0"
@@ -133,9 +142,14 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
           <button onClick={onReset} className="w-[200px] py-[1.2vh] rounded-[4px] text-[13px] font-mono text-[#00FF41] font-bold uppercase border border-[#00FF41] bg-[rgba(0,0,0,0.7)] shadow-[0_0_8px_#00FF41] hover:bg-[#00FF41]/20 transition-all text-center">
             SCAN AGAIN
           </button>
-          <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="w-[200px] py-[1.2vh] rounded-[4px] text-[13px] font-mono text-[#00FF41] font-bold uppercase border border-[#00FF41] bg-[rgba(0,0,0,0.7)] shadow-[0_0_8px_#00FF41] hover:bg-[#00FF41]/20 transition-all text-center block">
+          
+          {/* 💡 核心修改点：把之前的 <a> 标签换成了原生的 <button>，并绑定了 handleTwitterShare */}
+          <button 
+            onClick={handleTwitterShare} 
+            className="w-[200px] py-[1.2vh] rounded-[4px] text-[13px] font-mono text-[#00FF41] font-bold uppercase border border-[#00FF41] bg-[rgba(0,0,0,0.7)] shadow-[0_0_8px_#00FF41] hover:bg-[#00FF41]/20 transition-all text-center block"
+          >
             SHARE TO X
-          </a>
+          </button>
         </motion.div>
 
         {/* 唯一免责声明 */}
