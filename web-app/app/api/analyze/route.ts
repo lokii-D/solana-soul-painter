@@ -54,8 +54,21 @@ export async function POST(req: Request) {
     }
     const txs = await heliusRes.json();
 
-    // 6. DeepSeek 诊断
-    console.log(">>> [DIAGNOSTIC] Calling DeepSeek...");
+    // 6. DeepSeek 修复版 (严格包含 json 关键字和完整算命逻辑)
+    console.log(">>> [DIAGNOSTIC] Calling DeepSeek with full roast logic...");
+    
+    const txSummary = JSON.stringify(Array.isArray(txs) ? txs.slice(0, 15) : []);
+    const prompt = `You are a ruthless, cynical Web3 oracle. Analyze this Solana wallet data and roast the user. 
+    DATA: ${txSummary}
+    Your response MUST be a strict JSON object with these exact keys: 
+    "title" (Max 3 words), 
+    "title_tags" (3 tech keywords), 
+    "mbti" (Web3 personality), 
+    "mbti_tags" (3 traits), 
+    "analysis" (30-50 words), 
+    "roast" (One brutal punchline). 
+    Remember, the output must be in valid json format.`;
+
     const dsRes = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
@@ -64,7 +77,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: "deepseek-chat",
-        messages: [{ role: "user", content: `Roast this Solana wallet: ${address}` }], // 简化 Prompt 测试
+        messages: [{ role: "user", content: prompt }], 
         response_format: { type: "json_object" } 
       })
     });
@@ -75,7 +88,14 @@ export async function POST(req: Request) {
     }
 
     const dsData = await dsRes.json();
-    return NextResponse.json({ message: "SUCCESS", data: dsData.choices[0].message.content });
+    const aiResult = JSON.parse(dsData.choices[0].message.content);
+
+    // 7. 写入缓存并真实返回前端需要的数据结构
+    const cacheKey = `soul_scan_${address}`;
+    await redis.set(cacheKey, aiResult, { ex: 86400 });
+    
+    console.log(">>> [DIAGNOSTIC] Success! Data cached and returning to frontend.");
+    return NextResponse.json(aiResult);
 
   } catch (error: any) {
     console.error(">>> [DIAGNOSTIC] Fatal Error:", error);
