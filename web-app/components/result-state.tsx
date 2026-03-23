@@ -45,20 +45,15 @@ export function ResultState({ onReset, posterData }: ResultStateProps) {
   // 🚀 全新注入的裂变魔法函数 (链接紧随排版版)
   // ==========================================
   const handleTwitterShare = () => {
-    // 1. 直接定义好带网址的完整文案
-    // 注意：这里我们手动把 https 链接拼在手指 👇 后面
     const siteUrl = "https://solana-soul-painter.vercel.app";
     
-    const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nScan your wallet here 👇\n${siteUrl}`;
+    // 💡 修改点：把 👇 后面的 \n 换成了一个普通空格
+    const tweetText = `My On-Chain Soul Scan is complete 💀\n\nClass: [ ${title} ]\nAlignment: [ ${mbti} ]\n\n"${roastText}"\n\nScan your wallet here 👇 ${siteUrl}`;
 
-    // 2. 【关键】只传 text 参数，绝对不要再传 &url= 了！
-    // 这样推特就会强迫把网址显示在正文里
     const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
-    // 3. 打开窗口
     window.open(twitterIntentUrl, '_blank', 'noopener,noreferrer');
-  };
-
+  }; 
   return (
     <div className="w-full h-full flex justify-center items-center overflow-hidden bg-transparent">
       
