@@ -7,25 +7,28 @@ const redis = Redis.fromEnv();
 export async function POST(req: Request) {
   try {
     // ==========================================
-    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验
+    // 🛡️ DEFENSE TIER -1: CORS & ORIGIN 智能白名单校验 (已加固)
     // ==========================================
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
     const allowedOrigin = process.env.ALLOWED_ORIGIN;
     
-    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); 
+    // 加固：精确匹配本地环境，防止黑客伪造包含 localhost 的假域名
+    const isLocal = origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'); 
     const isVercel = origin.endsWith('.vercel.app'); 
     
     if (origin && !isLocal && !isVercel && origin !== allowedOrigin) {
       console.warn(`[SECURITY ALERT] UNAUTHORIZED ORIGIN BLOCKED: ${origin}`);
       return NextResponse.json({ 
-        error: `CSO_DEBUG: 查到的 Origin 是 [${origin}]` 
+        error: `ACCESS DENIED. UNREGISTERED TERMINAL.` 
       }, { status: 403 });
     }
 
     // ==========================================
-    // 🛡️ DEFENSE TIER -0.5: IP RATE LIMITING (防脚本狂刷)
+    // 🛡️ DEFENSE TIER -0.5: IP RATE LIMITING (已加固)
     // ==========================================
-    const ip = req.headers.get('x-forwarded-for') || 'unknown-cyber-entity';
+    // 加固：防止黑客通过伪造 x-forwarded-for 绕过限流（取逗号分隔的第一个真实IP）
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'unknown-cyber-entity';
     const rateLimitKey = `rate_limit_${ip}`;
     
     const requestCount = await redis.incr(rateLimitKey);
@@ -39,9 +42,17 @@ export async function POST(req: Request) {
       }, { status: 429 });
     }
 
-    const { address, token } = await req.json(); 
-    if (!address) {
-      return NextResponse.json({ error: "Address is required" }, { status: 400 });
+    const body = await req.json();
+    const { address, token } = body; 
+    
+    // ==========================================
+    // 🛡️ DEFENSE TIER -0.1: INPUT SANITATION (全新防注入加固)
+    // ==========================================
+    // 加固：严格校验 Solana 地址格式 (Base58, 32-44字符)，防止恶意代码注入 API
+    const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+    if (!address || !solanaAddressRegex.test(address)) {
+      console.warn(`[SECURITY ALERT] MALFORMED ADDRESS INJECTION ATTEMPT: ${address}`);
+      return NextResponse.json({ error: "INVALID SOLANA ADDRESS FORMAT" }, { status: 400 });
     }
 
     console.log(`[SECURITY LOG] Incoming soul scan request for address: ${address} from IP: ${ip}`);
@@ -113,7 +124,7 @@ export async function POST(req: Request) {
       recent_patterns: txDetails
     });
 
-    // 💡 100% 还原你的原版提示词，仅增加 JSON 格式声明
+    // 💡 100% 还原你的原版提示词
     const prompt = `You are a ruthless, highly analytical, and cynical Web3 cyber-oracle. Analyze the following Solana wallet data and roast the user without mercy.
 
 ON-CHAIN DATA:
