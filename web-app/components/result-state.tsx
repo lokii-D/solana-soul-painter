@@ -32,7 +32,8 @@ const SideCard = ({ subtitle, title, tags = [] }: { subtitle: string, title: str
   </div>
 );
 
-export function ResultState({ onReset, posterData }: ResultStateProps) {
+// 💡 修改后：把 address 解构出来
+export function ResultState({ address, onReset, posterData }: ResultStateProps) {
   const analysisText = posterData?.data?.analysis || "SYSTEM SCAN: 100 TXs detected. Pattern analysis reveals compulsive trading behavior with no coherent strategy. Gas fees exceed portfolio gains. Wallet functions as a liquidity provider for smarter traders. Terminal velocity toward zero confirmed."
   const roastText = posterData?.data?.roast || "Your portfolio is just a public service donation to whales who actually know what they're doing."
   const title = posterData?.data?.title || "EXIT LIQUIDITY"
